@@ -323,13 +323,9 @@ document.addEventListener('DOMContentLoaded', () => {
             listItem.dataset.wordId = wordInfo.id; // Link clue LI to word ID
 
             if (wordInfo.direction === 'across') {
-                if (!document.evaluate(`//li[text()="${listItem.textContent}"]`, acrossCluesList, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue) {
-                    acrossCluesList.appendChild(listItem);
-                }
+                acrossCluesList.appendChild(listItem); // Directly append
             } else { 
-                if (!document.evaluate(`//li[text()="${listItem.textContent}"]`, downCluesList, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue) {
-                    downCluesList.appendChild(listItem);
-                }
+                downCluesList.appendChild(listItem); // Directly append
             }
         });
 
