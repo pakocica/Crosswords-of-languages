@@ -333,8 +333,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (wordInfo.direction === 'across') {
                 acrossCluesList.appendChild(listItem); // Directly append
+                // --- ADD PER-APPEND DEBUGGING LINE FOR ACROSS HERE ---
+                console.log("Debug: After appending to across - acrossCluesList.innerHTML:", acrossCluesList.innerHTML);
             } else { 
                 downCluesList.appendChild(listItem); // Directly append
+                // --- ADD PER-APPEND DEBUGGING LINE FOR DOWN HERE ---
+                console.log("Debug: After appending to down - downCluesList.innerHTML:", downCluesList.innerHTML);
             }
         });
 
