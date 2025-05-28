@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spanish Crossword Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Spanish Vocabulary Crossword</h1>
+    </header>
+    <main>
+        <section id="game-setup">
+            <h2>Choose a Topic</h2>
+            <select id="topic-select">
+                <!-- Topics will be populated by JavaScript -->
+            </select>
+        </section>
+        <section id="crossword-container">
+            <h2>Crossword</h2>
+            <div id="grid-container">
+                <!-- Crossword grid will be generated here -->
+            </div>
+        </section>
+        <section id="clues-container">
+            <h3>Across</h3>
+            <ul id="across-clues">
+                <!-- Across clues will be listed here -->
+            </ul>
+            <h3>Down</h3>
+            <ul id="down-clues">
+                <!-- Down clues will be listed here -->
+            </ul>
+        </section>
+        <section id="game-controls">
+            <button id="check-answers-btn">Check Answers</button>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Spanish Crossword Game</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    padding-bottom: 60px; /* Height of the footer + some space */
+}
+
+header {
+    background: #333;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+main {
+    padding: 1rem;
+    overflow: auto; /* Clear floats */
+}
+
+#game-setup, #crossword-container, #clues-container, #game-controls {
+    background: #fff;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+#topic-select {
+    padding: 0.5rem;
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 1rem;
+}
+
+#grid-container {
+    border: 1px solid #ccc;
+    margin-bottom: 1rem;
+    /* Styles for the grid itself (e.g., using CSS Grid or table) will be added later */
+}
+
+#clues-container h3 {
+    margin-top: 0;
+}
+
+#across-clues, #down-clues {
+    list-style: none;
+    padding: 0;
+}
+
+#across-clues li, #down-clues li {
+    margin-bottom: 0.5rem;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem;
+    background: #333;
+    color: #fff;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Basic responsive design */
+@media (min-width: 768px) {
+    main {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap; /* Allow wrapping for smaller screens if main content is too wide */
+    }
+
+    #game-setup {
+        flex-basis: 20%; /* Adjust as needed */
+    }
+
+    #crossword-container {
+        flex-basis: 50%; /* Adjust as needed */
+        margin-left: 1rem;
+        margin-right: 1rem;
+    }
+
+    #clues-container {
+        flex-basis: 25%; /* Adjust as needed */
+    }
+    #game-controls {
+        flex-basis: 100%; /* Make game controls take full width in flex layout */
+        text-align: center;
+    }
+}
+
+/* styles.css additions */
+#crossword-grid {
+    border-collapse: collapse;
+    margin: 20px auto;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+#crossword-grid td {
+    border: 1px solid #ccc;
+    width: 30px; /* Size of each cell */
+    height: 30px;
+    text-align: center;
+    vertical-align: middle;
+    position: relative; /* For clue numbers */
+}
+
+#crossword-grid .active-cell input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    text-align: center;
+    font-size: 18px;
+    text-transform: uppercase;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box; /* Ensure padding/border are inside width/height */
+    background-color: transparent; /* Ensure it doesn't have a default white bg */
+}
+
+#crossword-grid .active-cell input:focus {
+    background-color: #e0e0ff; /* Light blue focus color */
+    outline: none; /* Optional: remove default outline if adding custom focus style */
+}
+
+#crossword-grid .empty-cell {
+    background-color: #333; /* Or some other indicator for non-playable cells */
+}
+
+.clue-number {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    font-size: 10px;
+    color: #666;
+}
+
+#clues-container {
+    padding-top: 10px;
+}
+
+#clues-container h3 {
+    margin-bottom: 5px;
+    color: #555;
+}
+
+#across-clues li, #down-clues li {
+    font-size: 0.9em;
+    color: #444;
+}
+
+/* Game Controls Styling */
+#game-controls {
+    text-align: center; /* Center the button */
+    margin-top: 10px; /* Already present, ensure it's what we want */
+}
+
+#check-answers-btn {
+    padding: 10px 15px;
+    background-color: #4CAF50; /* Green */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+#check-answers-btn:hover {
+    background-color: #45a049;
+}
