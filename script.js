@@ -338,6 +338,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // --- ADD POST-LOOP DEBUGGING LINES HERE ---
+        console.log("Debug: After loop - acrossCluesList children:", acrossCluesList.children.length);
+        console.log("Debug: After loop - downCluesList children:", downCluesList.children.length);
+        console.log("Debug: acrossCluesList element:", acrossCluesList);
+        console.log("Debug: downCluesList element:", downCluesList);
+        // --- END POST-LOOP DEBUGGING LINES ---
+
         // Populate input.associatedWords and data attributes
         puzzle.placedWords.forEach(wordInfo => {
             for (let i = 0; i < wordInfo.word.length; i++) {
