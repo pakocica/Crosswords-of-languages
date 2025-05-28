@@ -93,13 +93,15 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < firstWord.word.length; i++) {
             grid[startRow][startCol + i] = firstWord.word[i];
         }
-        placedWords.push({
+        const firstWordData = {
             word: firstWord.word,
             clue: firstWord.clue,
             row: startRow,
             col: startCol,
-            direction: 'across'
-        });
+            direction: 'across',
+            id: `word-${placedWords.length}`
+        };
+        placedWords.push(firstWordData);
 
         for (let i = 1; i < words.length; i++) {
             let currentWord = words[i];
@@ -135,13 +137,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                     for (let m = 0; m < currentWord.word.length; m++) {
                                         grid[tempRow + m][tempCol] = currentWord.word[m];
                                     }
-                                    placedWords.push({
+                                    const newWordData = {
                                         word: currentWord.word,
                                         clue: currentWord.clue,
                                         row: tempRow,
                                         col: tempCol,
-                                        direction: 'down'
-                                    });
+                                        direction: 'down',
+                                        id: `word-${placedWords.length}`
+                                    };
+                                    placedWords.push(newWordData);
                                     placed = true;
                                     break;
                                 }
@@ -165,13 +169,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                     for (let m = 0; m < currentWord.word.length; m++) {
                                         grid[tempRow][tempCol + m] = currentWord.word[m];
                                     }
-                                    placedWords.push({
+                                    const newWordData = {
                                         word: currentWord.word,
                                         clue: currentWord.clue,
                                         row: tempRow,
                                         col: tempCol,
-                                        direction: 'across'
-                                    });
+                                        direction: 'across',
+                                        id: `word-${placedWords.length}`
+                                    };
+                                    placedWords.push(newWordData);
                                     placed = true;
                                     break;
                                 }
@@ -190,6 +196,44 @@ document.addEventListener('DOMContentLoaded', () => {
         currentPuzzle = { grid, placedWords, gridSize };
         console.log("Generated puzzle:", currentPuzzle);
         displayGrid(currentPuzzle); 
+    }
+
+    function clearAllHighlights() {
+        document.querySelectorAll('#crossword-grid .active-cell input').forEach(input => {
+            input.parentElement.classList.remove('highlight-word-cell');
+        });
+        document.querySelectorAll('#across-clues li, #down-clues li').forEach(li => {
+            li.classList.remove('highlight-clue');
+        });
+    }
+
+    function highlightWordAndClue(event) {
+        clearAllHighlights();
+        const targetInput = event.target;
+
+        if (targetInput.associatedWords && targetInput.associatedWords.length > 0) {
+            targetInput.associatedWords.forEach(wordInfo => {
+                // Highlight cells of this word
+                for (let i = 0; i < wordInfo.word.length; i++) {
+                    let r = wordInfo.row;
+                    let c = wordInfo.col;
+                    if (wordInfo.direction === 'across') {
+                        c += i;
+                    } else { // down
+                        r += i;
+                    }
+                    const cell = document.getElementById('crossword-grid')?.rows[r]?.cells[c];
+                    if (cell && cell.classList.contains('active-cell')) { // Check if it's an active cell, not empty
+                        cell.classList.add('highlight-word-cell');
+                    }
+                }
+                // Highlight clue
+                const clueElement = document.querySelector(`li[data-word-id='${wordInfo.id}']`);
+                if (clueElement) {
+                    clueElement.classList.add('highlight-clue');
+                }
+            });
+        }
     }
 
     function displayGrid(puzzle) {
@@ -216,18 +260,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     input.maxLength = 1;
                     input.dataset.row = rowIndex;
                     input.dataset.col = colIndex;
-                    // input.value = cell; // Pre-fill for debugging, remove for actual game
+                    input.associatedWords = []; // Initialize for storing word references
                     td.appendChild(input);
                     td.classList.add('active-cell');
 
                     input.addEventListener('input', (e) => {
                         e.target.value = e.target.value.toUpperCase();
-                        // Reset background color if it was changed by answer checking
                         if (e.target.style.backgroundColor === 'pink' || e.target.style.backgroundColor === 'lightgreen') {
-                            e.target.style.backgroundColor = ''; // Reset to default
+                            e.target.style.backgroundColor = ''; 
                         }
                         console.log(`Input in cell [${e.target.dataset.row}, ${e.target.dataset.col}]: ${e.target.value}`);
                     });
+                    input.addEventListener('focus', highlightWordAndClue);
 
                 } else {
                     td.classList.add('empty-cell');
@@ -276,6 +320,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const listItem = document.createElement('li');
             listItem.textContent = `${wordStarts[startCellKey].number}. ${wordInfo.clue}`; 
+            listItem.dataset.wordId = wordInfo.id; // Link clue LI to word ID
+
             if (wordInfo.direction === 'across') {
                 if (!document.evaluate(`//li[text()="${listItem.textContent}"]`, acrossCluesList, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue) {
                     acrossCluesList.appendChild(listItem);
@@ -286,7 +332,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-         console.log("Grid display complete with clues.");
+
+        // Populate input.associatedWords and data attributes
+        puzzle.placedWords.forEach(wordInfo => {
+            for (let i = 0; i < wordInfo.word.length; i++) {
+                let currentCellR = wordInfo.row;
+                let currentCellC = wordInfo.col;
+                if (wordInfo.direction === 'across') {
+                    currentCellC += i;
+                } else {
+                    currentCellR += i;
+                }
+                const cellInput = table.rows[currentCellR]?.cells[currentCellC]?.querySelector('input');
+                if (cellInput) {
+                    cellInput.associatedWords.push(wordInfo);
+                    if(wordInfo.direction === 'across') {
+                        cellInput.dataset.acrossWord = wordInfo.word;
+                    } else {
+                        cellInput.dataset.downWord = wordInfo.word;
+                    }
+                }
+            }
+        });
+         console.log("Grid display complete with clues and highlighting logic.");
     }
 
     const checkAnswersBtn = document.getElementById('check-answers-btn');
@@ -296,6 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert("No puzzle loaded to check!");
                 return;
             }
+            clearAllHighlights(); // Clear highlights before checking
 
             let allCorrect = true;
             let feedback = "Answer Feedback:\n";
@@ -303,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentPuzzle.placedWords.forEach(wordInfo => {
                 let userAnswer = "";
                 let correct = true;
-                const table = document.getElementById('crossword-grid');
+                const tableGrid = document.getElementById('crossword-grid'); // Ensure we get the table
 
                 for (let i = 0; i < wordInfo.word.length; i++) {
                     let row = wordInfo.row;
@@ -315,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         row += i;
                     }
                     
-                    const cellInput = table.rows[row]?.cells[col]?.querySelector('input');
+                    const cellInput = tableGrid.rows[row]?.cells[col]?.querySelector('input');
                     if (cellInput) {
                         userAnswer += cellInput.value.toUpperCase();
                         if (cellInput.value.toUpperCase() !== wordInfo.word[i]) {

@@ -149,6 +149,59 @@ function runTests() {
     if(actualGridTable) actualGridTable.style.display = ''; // Show actual table again
     mockTable.remove(); // Clean up mock table
 
+    console.log("\n--- Testing Highlighting Logic (Basic) ---");
+    // This test assumes `generateCrossword` and `displayGrid` have run with some topic.
+    // Let's re-generate a small puzzle for this test to ensure elements exist.
+    const highlightTestWords = [{ word: "HI", clue: "greeting" }, {word: "IF", clue: "conditional"}];
+    generateCrossword(highlightTestWords); // This calls displayGrid internally
+
+    const firstInput = document.querySelector('#crossword-grid input.active-cell');
+    assert(firstInput !== null, "At least one active input cell exists for highlight test.");
+
+    if (firstInput) {
+        assert(typeof firstInput.associatedWords === 'object' && firstInput.associatedWords !== null, "Input cell has an 'associatedWords' property.");
+        // It might be empty if the first cell isn't part of a word, or could have words.
+        // A more robust test would find a specific cell known to be part of a word.
+        
+        // Let's find a cell that IS part of the first word "HI" (assuming it's placed as 'H' 'I')
+        // This depends heavily on the current very simple generator.
+        // If currentPuzzle and placedWords are available:
+        let cellWithWord = null;
+        if (currentPuzzle && currentPuzzle.placedWords.length > 0) {
+            const wordToTest = currentPuzzle.placedWords[0]; // e.g., "HI"
+            const r = wordToTest.row;
+            const c = wordToTest.col;
+            // CSS nth-child is 1-based, ensure table rows/cells are correctly queried
+            const inputForWord = document.querySelector(`#crossword-grid table tr:nth-child(${r + 1}) td:nth-child(${c + 1}) input`);
+            if (inputForWord) {
+                cellWithWord = inputForWord;
+                assert(cellWithWord.associatedWords && cellWithWord.associatedWords.length > 0, "Cell known to be part of a word has associatedWords.");
+
+                // Test if highlight functions are callable without error
+                try {
+                    highlightWordAndClue({ target: cellWithWord }); // Simulate focus event
+                    console.log("PASS: highlightWordAndClue called without error.");
+                    testsPassed++; // Manual pass increment
+                    
+                    // Check if highlighting class was applied to the cell or its parent
+                    assert(cellWithWord.parentElement.classList.contains('highlight-word-cell'), "Cell's parent TD has 'highlight-word-cell' class after highlight function.");
+
+                    clearAllHighlights();
+                    console.log("PASS: clearAllHighlights called without error.");
+                    testsPassed++; // Manual pass increment
+                    assert(!cellWithWord.parentElement.classList.contains('highlight-word-cell'), "Cell's parent TD does not have 'highlight-word-cell' after clear function.");
+
+                } catch (e) {
+                    console.error(`FAIL: Error during highlight function calls: ${e.message}`);
+                    testsFailed++;
+                }
+            } else {
+                 console.warn("WARN: Could not find a specific input cell for a placed word to test highlighting robustly.");
+            }
+        } else {
+            console.warn("WARN: No placed words in current puzzle to test highlighting robustly.");
+        }
+    }
 
     console.log("\n--- Test Summary ---");
     console.log(`${testsPassed} tests passed.`);
