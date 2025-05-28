@@ -291,6 +291,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let downNumber = 1;
         const wordStarts = {}; 
 
+        // --- ADD DEBUGGING LINES HERE ---
+        console.log("Debug: puzzle.placedWords content:", JSON.stringify(puzzle.placedWords));
+        console.log("Debug: Number of words to display clues for:", puzzle.placedWords.length);
+        // --- END DEBUGGING LINES ---
+
         puzzle.placedWords.sort((a,b) => a.row - b.row || a.col - b.col).forEach(wordInfo => {
             let displayNumber;
             const startCellKey = `${wordInfo.row}-${wordInfo.col}`;
