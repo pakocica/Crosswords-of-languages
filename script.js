@@ -327,6 +327,10 @@ document.addEventListener('DOMContentLoaded', () => {
             listItem.textContent = `${wordStarts[startCellKey].number}. ${wordInfo.clue}`; 
             listItem.dataset.wordId = wordInfo.id; // Link clue LI to word ID
 
+            // --- ADD DETAILED DEBUGGING LINE HERE ---
+            console.log("Debug: Attempting to add clue:", listItem.textContent, "for direction:", wordInfo.direction, "to list:", (wordInfo.direction === 'across' ? acrossCluesList : downCluesList));
+            // --- END DETAILED DEBUGGING LINE ---
+
             if (wordInfo.direction === 'across') {
                 acrossCluesList.appendChild(listItem); // Directly append
             } else { 
