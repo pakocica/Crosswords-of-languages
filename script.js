@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Spanish Crossword Game script loaded!');
+    let clueTooltip = document.getElementById('clue-tooltip'); // Fetch tooltip element here
+    let clueNumberMappings = {}; // To map clue numbers to actual clues
 
     const vocabulary = {
         colors: [
@@ -213,21 +215,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (targetInput.associatedWords && targetInput.associatedWords.length > 0) {
             targetInput.associatedWords.forEach(wordInfo => {
-                // Highlight cells of this word
                 for (let i = 0; i < wordInfo.word.length; i++) {
                     let r = wordInfo.row;
                     let c = wordInfo.col;
                     if (wordInfo.direction === 'across') {
                         c += i;
-                    } else { // down
+                    } else { 
                         r += i;
                     }
                     const cell = document.getElementById('crossword-grid')?.rows[r]?.cells[c];
-                    if (cell && cell.classList.contains('active-cell')) { // Check if it's an active cell, not empty
+                    if (cell && cell.classList.contains('active-cell')) { 
                         cell.classList.add('highlight-word-cell');
                     }
                 }
-                // Highlight clue
                 const clueElement = document.querySelector(`li[data-word-id='${wordInfo.id}']`);
                 if (clueElement) {
                     clueElement.classList.add('highlight-clue');
@@ -236,9 +236,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function showClueTooltip(event, clueNumber) {
+        if (!clueTooltip) clueTooltip = document.getElementById('clue-tooltip'); 
+        if (!clueTooltip) return; 
+
+        const cluesForNumber = clueNumberMappings[clueNumber];
+        if (!cluesForNumber || cluesForNumber.length === 0) return;
+
+        let tooltipHTML = "";
+        cluesForNumber.forEach(info => {
+            tooltipHTML += `<div><span class="tooltip-direction">${info.direction}:</span> ${info.clue}</div>`;
+        });
+        clueTooltip.innerHTML = tooltipHTML;
+
+        let x = event.pageX + 15;
+        let y = event.pageY + 15;
+
+        clueTooltip.style.left = `${x}px`;
+        clueTooltip.style.top = `${y}px`;
+        
+        setTimeout(() => { 
+            const tooltipRect = clueTooltip.getBoundingClientRect();
+            const bodyRect = document.body.getBoundingClientRect();
+
+            if (tooltipRect.right > bodyRect.width) {
+                x = event.pageX - tooltipRect.width - 15; 
+            }
+            if (tooltipRect.bottom > window.innerHeight + window.scrollY) { 
+                y = event.pageY - tooltipRect.height - 15; 
+                 if (y < window.scrollY) y = window.scrollY + 5; 
+            }
+            clueTooltip.style.left = `${x}px`;
+            clueTooltip.style.top = `${y}px`;
+        }, 0);
+
+        clueTooltip.classList.remove('clue-tooltip-hidden');
+   }
+
+   function hideClueTooltip() {
+        if (!clueTooltip) clueTooltip = document.getElementById('clue-tooltip');
+        if (!clueTooltip) return;
+        clueTooltip.classList.add('clue-tooltip-hidden');
+   }
+
     function displayGrid(puzzle) {
         const gridContainer = document.getElementById('grid-container');
         gridContainer.innerHTML = ''; 
+        clueNumberMappings = {}; // Initialize/clear for the new grid
 
         if (!puzzle || !puzzle.grid) {
             gridContainer.innerHTML = '<p>Error: No puzzle to display.</p>';
@@ -260,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     input.maxLength = 1;
                     input.dataset.row = rowIndex;
                     input.dataset.col = colIndex;
-                    input.associatedWords = []; // Initialize for storing word references
+                    input.associatedWords = []; 
                     td.appendChild(input);
                     td.classList.add('active-cell');
 
@@ -291,10 +335,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let downNumber = 1;
         const wordStarts = {}; 
 
-        // --- ADD DEBUGGING LINES HERE ---
         console.log("Debug: puzzle.placedWords content:", JSON.stringify(puzzle.placedWords));
         console.log("Debug: Number of words to display clues for:", puzzle.placedWords.length);
-        // --- END DEBUGGING LINES ---
 
         puzzle.placedWords.sort((a,b) => a.row - b.row || a.col - b.col).forEach(wordInfo => {
             let displayNumber;
@@ -309,6 +351,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const numberSpan = document.createElement('span');
                 numberSpan.classList.add('clue-number');
                 numberSpan.textContent = displayNumber;
+                
+                numberSpan.addEventListener('mouseover', (e) => showClueTooltip(e, displayNumber));
+                numberSpan.addEventListener('mouseout', hideClueTooltip);
+
                 if (cellElement.firstChild && cellElement.firstChild.nodeName === 'INPUT') {
                      cellElement.insertBefore(numberSpan, cellElement.firstChild);
                 } else {
@@ -317,6 +363,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 wordStarts[startCellKey] = { number: displayNumber, across: false, down: false };
             }
             
+            if (!clueNumberMappings[displayNumber]) {
+                clueNumberMappings[displayNumber] = [];
+            }
+            // Check if this specific word (by id) is already mapped for this number to avoid duplicates from shared start cells
+            if (!clueNumberMappings[displayNumber].find(entry => entry.id === wordInfo.id)) {
+                 clueNumberMappings[displayNumber].push({ 
+                    clue: wordInfo.clue, 
+                    direction: wordInfo.direction.toUpperCase(),
+                    id: wordInfo.id // Store id to prevent duplicates if logic is re-run or for other purposes
+                });
+            }
+
             if (wordInfo.direction === 'across' && !wordStarts[startCellKey].across) {
                 wordStarts[startCellKey].across = true;
             } else if (wordInfo.direction === 'down' && !wordStarts[startCellKey].down) {
@@ -325,31 +383,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const listItem = document.createElement('li');
             listItem.textContent = `${wordStarts[startCellKey].number}. ${wordInfo.clue}`; 
-            listItem.dataset.wordId = wordInfo.id; // Link clue LI to word ID
+            listItem.dataset.wordId = wordInfo.id; 
 
-            // --- ADD DETAILED DEBUGGING LINE HERE ---
             console.log("Debug: Attempting to add clue:", listItem.textContent, "for direction:", wordInfo.direction, "to list:", (wordInfo.direction === 'across' ? acrossCluesList : downCluesList));
-            // --- END DETAILED DEBUGGING LINE ---
 
             if (wordInfo.direction === 'across') {
-                acrossCluesList.appendChild(listItem); // Directly append
-                // --- ADD PER-APPEND DEBUGGING LINE FOR ACROSS HERE ---
+                acrossCluesList.appendChild(listItem); 
                 console.log("Debug: After appending to across - acrossCluesList.innerHTML:", acrossCluesList.innerHTML);
             } else { 
-                downCluesList.appendChild(listItem); // Directly append
-                // --- ADD PER-APPEND DEBUGGING LINE FOR DOWN HERE ---
+                downCluesList.appendChild(listItem); 
                 console.log("Debug: After appending to down - downCluesList.innerHTML:", downCluesList.innerHTML);
             }
         });
 
-        // --- ADD POST-LOOP DEBUGGING LINES HERE ---
         console.log("Debug: After loop - acrossCluesList children:", acrossCluesList.children.length);
         console.log("Debug: After loop - downCluesList children:", downCluesList.children.length);
         console.log("Debug: acrossCluesList element:", acrossCluesList);
         console.log("Debug: downCluesList element:", downCluesList);
-        // --- END POST-LOOP DEBUGGING LINES ---
 
-        // Populate input.associatedWords and data attributes
         puzzle.placedWords.forEach(wordInfo => {
             for (let i = 0; i < wordInfo.word.length; i++) {
                 let currentCellR = wordInfo.row;
@@ -380,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert("No puzzle loaded to check!");
                 return;
             }
-            clearAllHighlights(); // Clear highlights before checking
+            clearAllHighlights(); 
 
             let allCorrect = true;
             let feedback = "Answer Feedback:\n";
@@ -388,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentPuzzle.placedWords.forEach(wordInfo => {
                 let userAnswer = "";
                 let correct = true;
-                const tableGrid = document.getElementById('crossword-grid'); // Ensure we get the table
+                const tableGrid = document.getElementById('crossword-grid'); 
 
                 for (let i = 0; i < wordInfo.word.length; i++) {
                     let row = wordInfo.row;
@@ -396,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (wordInfo.direction === 'across') {
                         col += i;
-                    } else { // 'down'
+                    } else { 
                         row += i;
                     }
                     

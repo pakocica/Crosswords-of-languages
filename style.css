@@ -119,21 +119,11 @@ header h1 {
 }
 
 #across-clues li, #down-clues li {
-    font-size: 16px !important;
-    color: black !important;
-    background-color: yellow !important; /* Highly visible */
-    border: 2px solid red !important;    /* Highly visible */
-    display: block !important;           /* Ensure it's a block element */
-    visibility: visible !important;
-    opacity: 1 !important;
-    height: auto !important;             /* Ensure height isn't zero */
-    min-height: 20px !important;         /* Ensure it has some minimum height */
-    padding: 5px !important;
-    margin-bottom: 5px !important;       /* Existing, ensure it's there */
-    position: static !important;         /* Override any weird positioning */
-    z-index: 9999 !important;            /* Bring to front */
-    /* Keep existing border-radius if desired, but other properties are for forcing visibility */
-    border-radius: 4px; 
+    font-size: 0.95em;
+    color: #444;
+    padding: 4px;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
 }
 
 /* Game Controls Styling */
@@ -209,4 +199,40 @@ footer {
         flex-basis: 100%; 
         text-align: center;
     }
+}
+
+/* Clue Tooltip Styles */
+#clue-tooltip {
+    position: absolute;
+    background-color: #263238; /* Dark grey-blue background */
+    color: #eceff1; /* Light text color */
+    border: 1px solid #546e7a;
+    padding: 8px 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 10000; /* Ensure it's on top of other elements */
+    font-size: 0.9em;
+    max-width: 250px; /* Prevent it from being too wide */
+    /* Transitions for smooth appear/disappear (optional) */
+    /* opacity: 1; */
+    /* transition: opacity 0.1s ease-in-out, visibility 0.1s ease-in-out; */
+}
+
+.clue-tooltip-hidden {
+    display: none;
+    /* opacity: 0; */
+    /* visibility: hidden; */
+}
+
+/* Optional: Style for multiple clues in tooltip */
+#clue-tooltip div {
+    margin-bottom: 5px;
+}
+#clue-tooltip div:last-child {
+    margin-bottom: 0;
+}
+#clue-tooltip .tooltip-direction {
+    font-weight: bold;
+    color: #80cbc4; /* Teal accent for ACROSS/DOWN */
+    margin-right: 5px;
 }
