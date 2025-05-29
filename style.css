@@ -119,11 +119,21 @@ header h1 {
 }
 
 #across-clues li, #down-clues li {
-    font-size: 0.95em; /* Slightly larger clue text */
-    color: #444;
-    padding: 4px; /* Increased padding for highlight */
-    border-radius: 4px; /* Add radius to clue items for highlight */
-    margin-bottom: 0.5rem; /* Existing margin */
+    font-size: 16px !important;
+    color: black !important;
+    background-color: yellow !important; /* Highly visible */
+    border: 2px solid red !important;    /* Highly visible */
+    display: block !important;           /* Ensure it's a block element */
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;             /* Ensure height isn't zero */
+    min-height: 20px !important;         /* Ensure it has some minimum height */
+    padding: 5px !important;
+    margin-bottom: 5px !important;       /* Existing, ensure it's there */
+    position: static !important;         /* Override any weird positioning */
+    z-index: 9999 !important;            /* Bring to front */
+    /* Keep existing border-radius if desired, but other properties are for forcing visibility */
+    border-radius: 4px; 
 }
 
 /* Game Controls Styling */
